@@ -1,0 +1,10 @@
+github_user: DavidHyeonP
+laptop: Inspiron 15 3525, Windows 11
+date: 2026-10-27 11:29 UTC
+cpus_in_container: 12
+architecture: x86_64
+cpu: AuthenticAMD AMD Ryzen 5 5500U with Radeon Graphics 
+kernel: 6.6.114.1-microsoft-standard-WSL2
+docker_memory_kb: 4009056
+container_memory_limit: 2147483648
+container_swap_limit: 0
