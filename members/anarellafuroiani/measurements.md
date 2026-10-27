@@ -39,3 +39,16 @@ Command: python3 steps/report.py | tee /tmp/report.log
 Result: none/empty
 
 Explanation: Standard output is buffered when sent through a pipe. The process was killed before Python flushed its output buffer, so tee did not receive the printed message.
+
+## Task 2: Extracting Data
+
+- Command: bash steps/extracts.sh
+- Script exit status: 0
+- Result: All files were empty (0 bytes).
+- Cause: The relative path ../data/sales_2025.csv is incorrect when the working directory is ~/data/out/extracts.
+- Actual input file: ~/data/sales_2025.csv
+- grep error: No such file or directory.
+- Pipeline exit statuses: 2 0 0 (grep failed; cut and wc succeeded).
+- The script hides grep's error using 2>/dev/null.
+- The final echo command succeeds, so the script reports status 0.
+- Solution: Use the correct input path and add set -euo pipefail to detect failures.
