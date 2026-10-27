@@ -18,3 +18,5 @@ Where to find each detail (Section 3 of the handout has the same table):
 |---|---|---|---|---|
 | Armando Hernandez | @ajhernandezieu2024-design | MacBook Pro 14-inch M5, macOS Tahoe 26.6.2 | 10 cores / 10 threads | 10 |
 | Anarella Furoiani | anarellafuroiani |  MacBook Pro 14-inch M1 Pro 2021, macOS Tahoe 26.6.2 | 10 cores / 10 threads | 10 |
+| Theodor David | @your-github-username | <Manufacturer> <Model>, Windows 11 <edition> | 10 cores / 12 threads | 4 |
+| Ana Aurrecoechea | @abaurrecoechieu2024-collab | Apple MacBook Air, macOS | To confirm | 2 |
