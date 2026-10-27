@@ -17,3 +17,4 @@ Where to find each detail (Section 3 of the handout has the same table):
 | Name | GitHub username | Laptop (model, operating system) | Cores and threads of the laptop | CPUs in the container (`nproc`) |
 |---|---|---|---|---|
 | Armando Hernandez | @ajhernandezieu2024-design | MacBook Pro 14-inch M5, macOS Tahoe 26.6.2 | 10 cores / 10 threads | 10 |
+| Theodor David | @your-github-username | <Manufacturer> <Model>, Windows 11 <edition> | 10 cores / 12 threads | 4 |
