@@ -52,3 +52,16 @@ Explanation: Standard output is buffered when sent through a pipe. The process w
 - The script hides grep's error using 2>/dev/null.
 - The final echo command succeeds, so the script reports status 0.
 - Solution: Use the correct input path and add set -euo pipefail to detect failures.
+
+## Task 3: Audit 
+- Dataset: 1,000 orders.
+- Original script: 1,686 openat, 1,673 close, 1,001 write calls.
+- Optimized script: 686 openat, 673 close, 2 write calls.
+- Ssystem calls decreased from 4360 to 1361.
+- Original elapsed time: 0.36 ; optimized version reduced it to 0.29
+- Original system CPU time: 0.10 s; optimized: 0.05 s.
+- Optimized output: 1,000 lines verified with wc -l.
+- The original script opened and closed the file for row, with the optimized version we opened the file just once, reducing overhead and allowing buffered writes.
+- However buffered output may lose recent unwritten data if the program crashes.
+
+
