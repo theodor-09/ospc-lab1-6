@@ -65,3 +65,17 @@ Explanation: Standard output is buffered when sent through a pipe. The process w
 - However buffered output may lose recent unwritten data if the program crashes.
 
 
+## Task 4: Segmenting Orders — Profiling and Optimization
+
+- Dataset: 100,000 orders.
+- Tool: `cProfile`, sorted by cumulative time.
+- Bottleneck: `datetime.strptime()` was called 100,000 times.
+- Original elapsed time: 0.77s.
+- Optimized elapsed time: 0.53s.
+- Original user CPU time: 1.52 s; optimized: 1.26 s.
+- Original system CPU time: 0.03 s; optimized: 0.06 s.
+- Og peak memory: 132,848 KB; optimized: 132,688 KB.
+- Optimization: Replaced full date parsing with direct month extraction
+- Verification: `diff` returned exit status 0, confirming identical outputs for the test dataset.
+- Therefore deleting date parsing improved execution time while preserving the results. 
+
