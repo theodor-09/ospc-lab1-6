@@ -79,3 +79,39 @@ Explanation: Standard output is buffered when sent through a pipe. The process w
 - Verification: `diff` returned exit status 0, confirming identical outputs for the test dataset.
 - Therefore deleting date parsing improved execution time while preserving the results. 
 
+## Task 5: Computing the Statistics
+
+### Problem 1: Worker Count
+
+The original stats.sh uses 16 workers by default, regardless of the available CPU resources.
+
+### Worker Experiment
+
+| Workers | Elapsed (s) | User (s) | System (s) | Speedup |
+|---|---:|---:|---:|---:|
+| 1 | 35.20 | 35.93 | 0.79 | 1.00 |
+| 2 | 18.63 | 36.95 | 0.99 | 1.89 |
+| 4 | 10.57 | 40.99 | 1.49 | 3.33 |
+| 8 | 6.34 | 45.03 | 1.61 | 5.55 |
+| 16 | 5.90 | 51.12 | 2.74 | 5.97 |
+
+### Interpretation
+
+- Increasing workers reduced elapsed time from 35.20 s to 5.90 s.
+- User CPU time increased from 35.93 s to 51.12 s.
+- The improvement from 8 to 16 workers was small which demonstrates diminishing returns.
+- 16 workers achieved the shortest elapsed time, but 8 workers required fewer processes for similar performance.
+- Fix: Replaced the fixed default of 16 workers with the available CPU count using nproc.
+
+### Problem 2: Orphan Processes
+
+- Ran stats.sh and interrupted it using Ctrl+C.
+- The original script left stats_worker.py running with PID 679 and PPID 1.
+- This showed that the background worker continued after its parent shell terminated.
+- Fix: Added a trap for SIGINT and SIGTERM, stored worker PIDs using $!, and used kill and wait during cleanup.
+- Verification: After interrupting the modified script, ps showed no remaining stats_worker.py processes.
+
+### Conclusion
+
+The original script used a fixed number of workers and didn’t clean up background processes. Now, with the new version, it selects workers based on available CPUs and terminates tracked workers when interrupted. 
+
