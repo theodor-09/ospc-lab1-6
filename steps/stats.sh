@@ -5,7 +5,7 @@
 
 WORKERS=${WORKERS:-$(nproc)}
 OUT=${OUT:-$HOME/data/out}
-trap 'kill 0' EXIT
+trap 'kill $(jobs -p) 2>/dev/null; wait' EXIT INT TERM
 
 python3 steps/stats_prepare.py
 mkdir -p "$OUT/stats"

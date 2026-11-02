@@ -19,8 +19,9 @@ Before (original, 8.4M rows): 48.02s elapsed, 47.54s user, 0.71s system, 743952 
 After (fixed, 8.4M rows): 21.88s elapsed, 20.70s user, 1.23s system, 1260948 KB peak.
 
 ## Task 5: stats.sh
-Before (16 workers, sweep avg): ~38s elapsed, ~106s user, ~45s system.
-After (4 workers via nproc): "done with 4 workers". No orphans after kill.
+Before (16 workers, sweep avg): ~41s elapsed, ~35s user, ~7s system (1 worker baseline: ~41s).
+After (nproc=4 workers, sweep avg): ~25s elapsed, ~70s user, ~25s system.
+Best: 4 workers at ~25s. 2 workers ~27s. 8+ workers slower (~30s) due to oversubscription.
 Sweep data in sweep.csv.
 
 ## Full pipeline (fixed)
