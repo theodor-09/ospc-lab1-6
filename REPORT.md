@@ -119,6 +119,6 @@ Generated report text: The five bullet points under "Task 4: Segmenting the orde
 
 I ran the commands myself, checked the profiler results, and verified that the optimized output matched the original.
 
-AI Acknowledgement — Task 2
-
+### AI use for Task 2
+Tool: ChatGPT (OpenAI).
 We used ChatGPT to help us understand and debug the problems in extracts.sh. It helped as a guide trough terminal commands and understanding new outputs. We also used it to review our solution and organize the explanation in the report. All commands were executed by us, and we checked the results using the sample and full datasets.
