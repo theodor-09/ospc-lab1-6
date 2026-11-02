@@ -1,4 +1,4 @@
-# Individual Measurements — OSPC Lab 1
+# Individual Measurements — ana Lab 1
 
 ## Task 1 — Report memory problem
 
