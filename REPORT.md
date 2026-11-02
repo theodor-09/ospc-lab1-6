@@ -136,3 +136,8 @@ I ran the commands myself, checked the profiler results, and verified that the o
 ### AI use for Task 2
 Tool: ChatGPT (OpenAI).
 We used ChatGPT to help us understand and debug the problems in extracts.sh. It helped as a guide trough terminal commands and understanding new outputs. We also used it to review our solution and organize the explanation in the report. All commands were executed by us, and we checked the results using the sample and full datasets.
+
+### AI Use — Task 1 
+
+Tool: ChatGPT. Used it as a learning tool and for support. I asked for step by step guidance in the use of GitHub as I had limited experience with this tool, understanding the issues, guide through commands, drafting and testing. 
+
