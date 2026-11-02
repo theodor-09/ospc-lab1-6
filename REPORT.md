@@ -11,11 +11,25 @@ not whole screens.
 
 ## Task 1: Generating the report… again
 
-- Symptom:
-- Commands and recordings you used, why you chose them, and what they showed:
-- Cause:
-- Fix:
-- Before and after (your measurements):
+- **Symptom:** The original `steps/report.py` exceeded the 2 GiB Docker memory limit and was killed (OOM, exit status 137).
+
+- **Commands and recordings:** We tested the original script on 1, 2 and 4 million orders to investigate memory growth. We measured the optimized script using `/usr/bin/time -v python3 steps/report.py` and validated its output with `python3 tools/check.py`.
+
+- **Cause:** The script loaded all 8.4 million orders into memory and created 12 monthly DataFrames followed by `pd.concat()`, causing excessive memory consumption.
+
+- **Fix:** Replaced full-file loading with `pd.read_csv(DATA, chunksize=100_000)`. Each chunk is grouped by region and month, keeping only accumulated revenue totals.
+
+- **Before and after (measurements):**
+  - Before: OOM kill under the 2 GiB limit (exit status 137).
+  - After: 8,400,000 orders processed successfully.
+  - Elapsed time: 9.14 s.
+  - User CPU time: 9.39 s.
+  - System CPU time: 0.53 s.
+  - Peak RSS: 207,600 KB (approximately 202.7 MiB).
+  - Exit status: 0.
+  - Validation: `PASS revenue_by_region_month.csv`.
+
+**Conclusion:** Chunking reduced peak memory while preserving the expected output.
 
 ## Task 2: Extracting data
 
