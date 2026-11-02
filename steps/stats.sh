@@ -3,8 +3,9 @@
 # region and month. The work is split among WORKERS processes that run at
 # the same time: more workers, faster results.
 
-WORKERS=${WORKERS:-16}
+WORKERS=${WORKERS:-$(nproc)}
 OUT=${OUT:-$HOME/data/out}
+trap 'kill 0' EXIT
 
 python3 steps/stats_prepare.py
 mkdir -p "$OUT/stats"
