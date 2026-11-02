@@ -7,6 +7,11 @@
 - Full dataset: 89.08 s elapsed, 64.71 s user, 25.28 s system, 2,143,632 KB peak memory.
 - The original full-data process was terminated by signal 9.
 
+### Diagnosis and fix
+The original reporting script loaded the entire 8.4-million-row dataset into memory at once. This caused excessive memory consumption, and the process was terminated by the operating system.
+
+The fix changed the script to process the dataset in smaller chunks rather than loading everything into memory at once. This reduced peak memory usage significantly.
+
 ### After the fix
 - Full dataset (8.4 million orders): 39.09 s elapsed, 33.76 s user, 6.01 s system, 190,932 KB peak memory.
 - Successfully processed all 8.4 million orders.
