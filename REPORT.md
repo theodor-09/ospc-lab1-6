@@ -35,11 +35,11 @@ not whole screens.
 
 ## Task 4: Segmenting the orders
 
-- Symptom:
-- Commands and recordings you used, why you chose them, and what they showed:
-- Cause:
-- Fix:
-- Before and after (your measurements):
+- Symptom: The segments step was taking much longer than reading the CSV.
+- Commands and recordings you used, why you chose them, and what they showed: I used /usr/bin/time to measure execution time and CPU usage, and cProfile to find the slow functions. The profiler showed 100,000 calls to strptime() on the sample.
+- Cause: The script was converting dates one by one inside a loop, which wasted CPU time.
+- Fix: I used pandas to calculate the quarters before the loop, instead of converting each date separately.
+- Before and after (your measurements): On 100,000 rows, execution time dropped from 1.01 s to 0.29 s (about 71% less time). cProfile time dropped from 0.890 s to 0.402 s. The output was identical. The full dataset ran in 10.43 s with 1,265,744 KB peak memory.
 
 ## Task 5: Computing the statistics
 
