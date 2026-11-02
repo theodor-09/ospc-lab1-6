@@ -6,8 +6,8 @@ not whole screens.
 
 ## Warm-up: Generating the report
 
-- What happened, and why:
-- Your fix, and how it reached your teammates:
+- What happened, and why: The script did not have permission to run directly. However, using bash run_report.sh worked because Bash can read the file without that permission.
+- Your fix, and how it reached your teammates: I used chmod +x run_report.sh to make the script executable. Then I committed the change and pushed it to GitHub so my teammates could get it using git pull.
 
 ## Task 1: Generating the report… again
 
