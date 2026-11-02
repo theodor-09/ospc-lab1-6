@@ -11,19 +11,70 @@ not whole screens.
 
 ## Task 1: Generating the report… again
 
-- Symptom:
-- Commands and recordings you used, why you chose them, and what they showed:
-- Cause:
-- Fix:
-- Before and after (your measurements):
+- **Symptom:** The original `steps/report.py` exceeded the 2 GiB Docker memory limit and was killed (OOM, exit status 137).
+
+- **Commands and recordings:** We tested the original script on 1, 2 and 4 million orders to investigate memory growth. We measured the optimized script using `/usr/bin/time -v python3 steps/report.py` and validated its output with `python3 tools/check.py`.
+
+- **Cause:** The script loaded all 8.4 million orders into memory and created 12 monthly DataFrames followed by `pd.concat()`, causing excessive memory consumption.
+
+- **Fix:** Replaced full-file loading with `pd.read_csv(DATA, chunksize=100_000)`. Each chunk is grouped by region and month, keeping only accumulated revenue totals.
+
+- **Before and after (measurements):**
+  - Before: OOM kill under the 2 GiB limit (exit status 137).
+  - After: 8,400,000 orders processed successfully.
+  - Elapsed time: 9.14 s.
+  - User CPU time: 9.39 s.
+  - System CPU time: 0.53 s.
+  - Peak RSS: 207,600 KB (approximately 202.7 MiB).
+  - Exit status: 0.
+  - Validation: `PASS revenue_by_region_month.csv`.
+
+**Conclusion:** Chunking reduced peak memory while preserving the expected output.
 
 ## Task 2: Extracting data
 
-- Symptom:
-- Commands and recordings you used, why you chose them, and what they showed:
-- Cause:
-- Fix:
-- Before and after (your measurements):
+- **Symptom:**
+
+The extraction script printed `extracts: done`, but all six regional CSV files were empty (0 rows). The script appeared to work even though no data was extracted.
+
+- **Commands and recordings:**
+
+1. `bash steps/extracts.sh` — We first ran the script to see whether it worked. It printed `extracts: done`, which suggested that the extraction had finished successfully.
+
+2. `echo $?` — We checked the exit code of the script. It returned `0`, meaning the system reported no error. However, this did not prove that the output was correct, so we checked the files next.
+
+3. `ls -l ~/data/out/extracts` — We inspected the files created by the script. All six regional CSV files had a size of 0 bytes. This showed that the script was creating files but not extracting any data.
+
+4. `less steps/extracts.sh` — We read the original script to understand its commands. We noticed that it changed the working directory and used a relative path to find the dataset. We also saw that `2>/dev/null` was hiding error messages.
+
+5. `grep ",Iberia," ../data/sales_2025.csv | cut -d, -f1,2,4,6,7 | wc -l` — We tested the extraction pipeline manually using Iberia as an example. `grep` searches for Iberia orders. Instead of finding records, we received `No such file or directory` and a count of 0. This suggested that the input path was incorrect.
+
+6. `echo ${PIPESTATUS[@]}` — We checked the exit code of each command in the pipeline. The result was `2 0 0`, meaning `grep` failed, but `cut` and `wc` succeeded. This explained why the script could appear successful even when the extraction failed.
+
+7. `pwd` — We checked our current working directory. It was `/home/analyst/data/out/extracts`, confirming that the relative path was being interpreted from the extraction folder rather than from the repository.
+
+8. `grep -c ',Iberia,' ~/data/sales_2025_sample.csv` — We checked whether the dataset actually contained Iberia orders. It returned 25,928 records, confirming that the data existed and the problem was the incorrect file path.
+
+- **Cause:**
+
+The script used `cd "$OUT/extracts"` and then tried to read `../data/sales_2025.csv`. This relative path did not point to the dataset. Additionally, `2>/dev/null` hid the error messages, and the script did not detect failures in the pipeline.
+
+- **Fix:**
+
+We removed the unnecessary `cd` command and replaced the relative input path with the `DATA` environment variable, defaulting to `$HOME/data/sales_2025.csv`. We also removed `2>/dev/null` and added `set -euo pipefail` so that errors are visible and the script stops if a command fails.
+
+- **Before and after (your measurements):**
+
+| Measurement       | Before           | After                                   |
+| ----------------- | ---------------- | --------------------------------------- |
+| Sample dataset    | 0 rows extracted | 100,000 rows extracted                  |
+| Full dataset      | 0 rows extracted | 8,400,000 rows extracted                |
+| Iberia sample     | 0 rows           | 25,928 rows                             |
+| Error detection   | Errors hidden    | Errors visible; script stops on failure |
+| Output validation | Incorrect        | All six regional checks passed          |
+
+After the fix, the script generated all six regional CSV files correctly. We verified the results using `wc -l` and `python3 tools/check.py`.
+
 
 ## Task 3: Auditing
 
@@ -81,3 +132,12 @@ Generated code:
 Generated report text: The five bullet points under "Task 4: Segmenting the orders" were drafted with ChatGPT's assistance.
 
 I ran the commands myself, checked the profiler results, and verified that the optimized output matched the original.
+
+### AI use for Task 2
+Tool: ChatGPT (OpenAI).
+We used ChatGPT to help us understand and debug the problems in extracts.sh. It helped as a guide trough terminal commands and understanding new outputs. We also used it to review our solution and organize the explanation in the report. All commands were executed by us, and we checked the results using the sample and full datasets.
+
+### AI Use — Task 1 
+
+Tool: ChatGPT. Used it as a learning tool and for support. I asked for step by step guidance in the use of GitHub as I had limited experience with this tool, understanding the issues, guide through commands, drafting and testing. 
+
