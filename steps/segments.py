@@ -1,7 +1,6 @@
 """Number of orders per region, quarter and order size (segments.csv)."""
 
 import os
-from datetime import datetime
 
 import pandas as pd
 
@@ -10,10 +9,12 @@ OUT = os.environ.get("OUT", os.path.expanduser("~/data/out"))
 os.makedirs(OUT, exist_ok=True)
 
 orders = pd.read_csv(DATA, usecols=["order_date", "region", "quantity", "unit_price"])
-
+# generated with chatgpt (openai). prompt: help optimize task 4 by replacing slow date conversions with pandas.
+orders["quarter"] = pd.to_datetime(orders["order_date"]).dt.quarter
 
 def segment(order):
-    quarter = (datetime.strptime(order.order_date, "%Y-%m-%d").month - 1) // 3 + 1
+    # generated with chatgpt (openai). prompt: help optimize task 4 by replacing slow date conversions with pandas.
+    quarter = order.quarter
     value = order.quantity * order.unit_price
     if value >= 500:
         size = "large"
