@@ -94,12 +94,25 @@ After the fix, the script generated all six regional CSV files correctly. We ver
 
 ## Task 5: Computing the statistics
 
-- Symptom: stats.sh hardcodes 16 workers. With nproc=4, elapsed time does not improve beyond 2 workers. Ctrl-C leaves orphan python3 workers running.
-- Commands: `nproc` (returned 4), `bash tools/sweep.sh Thedoor`, `ps -ef` after `kill %1`, `/usr/bin/time` on original and fixed versions.
-- Cause: 16 workers on 4 CPUs means time-sharing overhead. Background children (`&`) are not killed when the parent exits.
-- Fix: Changed `WORKERS=${WORKERS:-16}` to `WORKERS=${WORKERS:-$(nproc)}`. Added `trap 'kill 0' EXIT` to kill all children on exit.
-- Before: 16 workers, ~38s elapsed, ~106s user, ~45s system. Orphans survive Ctrl-C.
-- After: 4 workers, "done with 4 workers". No orphans after kill. Sweep shows 2 workers (~37s) is fastest.
+- Symptom: stats.sh hardcodes 16 workers. With nproc=4, 16 workers gives ~32s elapsed but ~90s user and ~38s system time. Ctrl-C leaves orphan workers running.
+- Commands: `nproc` (returned 4), `bash tools/sweep.sh theodor-09`, `ps -ef` after `kill %1`.
+- Cause: 16 workers on 4 CPUs means time-sharing overhead (Lecture 12). Background children (`&`) not killed when parent exits (Lecture 4).
+- Fix: Changed `WORKERS=${WORKERS:-16}` to `WORKERS=${WORKERS:-$(nproc)}`. Added `trap 'kill $(jobs -p) 2>/dev/null; wait' EXIT INT TERM`.
+- Before: 1 worker ~41s, 16 workers ~32s but 90s user + 38s system.
+- After: 4 workers ~25s (best), 70s user + 25s system. No orphans after kill.
+
+Sweep results (theodor-09, nproc=4, clean environment):
+| Workers | Avg elapsed | Avg user | Avg system |
+|---------|------------|----------|------------|
+| 1       | 41.0s      | 34.5s    | 6.9s       |
+| 2       | 27.5s      | 39.9s    | 12.6s      |
+| 4       | 25.3s      | 70.3s    | 25.5s      |
+| 8       | 30.2s      | 83.8s    | 33.9s      |
+| 16      | 32.5s      | 89.1s    | 38.5s      |
+
+Elapsed drops from 41s (1 worker) to 25s (4 workers) then rises. User and system time grow with workers due to context switching and OS overhead. 4 workers matches nproc and gives the best tradeoff.
+
+We chose `$(nproc)` as the default because it matches available CPUs on any machine automatically.
 
 ## The worker experiment
 
