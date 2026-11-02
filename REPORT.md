@@ -78,11 +78,15 @@ After the fix, the script generated all six regional CSV files correctly. We ver
 
 ## Task 3: Auditing
 
-- Symptom:
-- Commands and recordings you used, why you chose them, and what they showed:
-- Cause:
-- Fix:
-- Before and after (your measurements):
+- **Symptom:** `audit.py` was very slow because it opened and closed the output file for every order.
+- **Commands:** Used `/usr/bin/time` to measure performance, `strace -c` to count system calls, and `wc -l` to verify the output.
+- **Cause:** Opening, writing and closing the file inside the loop caused excessive file-system operations.
+- **Fix:** Moved the file opening outside the loop so all orders are written using one open file handle.
+- **Before and after (8.4 million orders):**
+  - Before: 422.68 s elapsed, 229.19 s user, 187.70 s system, 632,820 KB memory.
+  - After: 62.04 s elapsed, 51.89 s user, 8.02 s system, 633,752 KB memory.
+- **System calls (100,000-order sample):** `openat` decreased from 100,689 to 689; `write` from 100,001 to 17; `close` from 100,677 to 677.
+- **Result:** The fixed script successfully generated all 8,400,000 audit records.
 
 ## Task 4: Segmenting the orders
 
@@ -158,3 +162,6 @@ Tool: ChatGPT. Used it as a learning tool and for support. I asked for step by s
 ### AI use for Task 5
 Tool: Claude (Anthropic)
 Prompts: I asked to highlight the bugs in stats.sh and the necessary edits to remove the fix number of workers and deal with orphan processes. I also asked for help formatting this report section based on my answers and measurements and to correct my work / interpretation if necessary.
+
+### AI use for Task 3
+Used ChatGPT to help understand the audit problem, interpret timing and system-call results, and prepare the report. I ran the commands, implemented the fix and verified the output myself.
