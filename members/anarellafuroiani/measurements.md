@@ -115,3 +115,24 @@ The original stats.sh uses 16 workers by default, regardless of the available CP
 
 The original script used a fixed number of workers and didn’t clean up background processes. Now, with the new version, it selects workers based on available CPUs and terminates tracked workers when interrupted. 
 
+
+## Task 1 — Final memory optimization
+
+**Problem:** The original report.py loaded the whole CSV into memory, creating 12 monthly data frames followed by pd.concat(), this led to excessive peak memory usage and an OOM kill under the 2 GiB container limit.
+
+**Solution:** We decided to use chunks for loading the data frames: replaced the entire data loading and the intermediate data frames with read_csv(chunksize=100_000). So revenue is aggregated by region and month within each chunk, and only the accumulated totals are retained to reduce memory usage.
+
+**Results (8,400,000 orders):**
+- Elapsed time: 9.14 seconds
+- User CPU time: 9.39 seconds
+- System CPU time: 0.53 seconds
+- Peak RSS: 207,600 KB (approximately 202.7 MiB)
+- Exit status: 0
+- Validation: PASS revenue_by_region_month.csv using python3 tools/check.py
+
+**Conclusion:** Chunking prevents the OOM failure by keeping memory usage bounded while preserving the expected report output.
+
+### Generative AI Usage Statement
+
+Used ChatGPT as a learning and technical support tool. It helped me understand the concepts behind the tasks, guided me through implementation in the repo, learn how to navigate GitHub, manage commits, and push changes to the repository, as I had limited prior experience.
+
