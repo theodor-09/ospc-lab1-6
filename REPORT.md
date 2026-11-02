@@ -94,11 +94,12 @@ After the fix, the script generated all six regional CSV files correctly. We ver
 
 ## Task 5: Computing the statistics
 
-- Symptom:
-- Commands and recordings you used, why you chose them, and what they showed:
-- Cause:
-- Fix:
-- Before and after (your measurements):
+- Symptom: stats.sh hardcodes 16 workers. With nproc=4, elapsed time does not improve beyond 2 workers. Ctrl-C leaves orphan python3 workers running.
+- Commands: `nproc` (returned 4), `bash tools/sweep.sh Thedoor`, `ps -ef` after `kill %1`, `/usr/bin/time` on original and fixed versions.
+- Cause: 16 workers on 4 CPUs means time-sharing overhead. Background children (`&`) are not killed when the parent exits.
+- Fix: Changed `WORKERS=${WORKERS:-16}` to `WORKERS=${WORKERS:-$(nproc)}`. Added `trap 'kill 0' EXIT` to kill all children on exit.
+- Before: 16 workers, ~38s elapsed, ~106s user, ~45s system. Orphans survive Ctrl-C.
+- After: 4 workers, "done with 4 workers". No orphans after kill. Sweep shows 2 workers (~37s) is fastest.
 
 ## The worker experiment
 
@@ -141,3 +142,6 @@ We used ChatGPT to help us understand and debug the problems in extracts.sh. It 
 
 Tool: ChatGPT. Used it as a learning tool and for support. I asked for step by step guidance in the use of GitHub as I had limited experience with this tool, understanding the issues, guide through commands, drafting and testing. 
 
+### AI use for Task 5
+Tool: Claude (Anthropic)
+Prompts: I asked to highlight the bugs in stats.sh and the necessary edits to remove the fix number of workers and deal with orphan processes. I also asked for help formatting this report section based on my answers and measurements and to correct my work / interpretation if necessary.
